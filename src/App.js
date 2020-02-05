@@ -1,26 +1,71 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from 'react';
+import {
+  BrowserRouter,
+  Switch,
+  Route
+} from 'react-router-dom';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import { connect } from 'react-redux';
+
+import 'semantic-ui-css/semantic.min.css';
+
+import PrivateRoute from './components/PrivateRoute';
+import Login from './pages/Login';
+import Home from './pages/Home';
+import Order from './pages/Order';
+import Product from './pages/Product';
+import User from './pages/User';
+
+class App extends Component {
+  render() {
+    return (
+      <BrowserRouter>
+        <Switch>
+          <Route
+            exact
+            path="/login"
+            render={
+              (props) => (<Login {...props} />)
+            }
+          />
+          <PrivateRoute
+            exact
+            path="/"
+            component={
+              (props) => (<Home {...props} />)
+            }
+          />
+          <PrivateRoute
+            exact
+            path="/order"
+            component={
+              (props) => (<Order {...props} />)
+            }
+          />
+          <PrivateRoute
+            exact
+            path="/product"
+            component={
+              (props) => (<Product {...props} />)
+            }
+          />
+          <PrivateRoute
+            exact
+            path="/user"
+            component={
+              (props) => (<User {...props} />)
+            }
+          />
+        </Switch>
+      </BrowserRouter>
+    );
+  }
 }
 
-export default App;
+const mapStateToProps = state => {
+  return {
+    auth: state.auth
+  }
+};
+
+export default connect(mapStateToProps)(App);
