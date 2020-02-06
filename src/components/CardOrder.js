@@ -2,7 +2,8 @@ import React from 'react';
 
 import {
   CardItem,
-  Image
+  Image,
+  CardPrice
 } from '../components/Layout';
 
 import {
@@ -25,7 +26,8 @@ const CardOrder = (props) => {
         as="a"
       >
         <Image src={image} />
-        <Card.Content extra>
+        <CardPrice>{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(data.price)}</CardPrice>
+        <Card.Content>
           <Card.Description>
             <strong>{name}</strong>
           </Card.Description>

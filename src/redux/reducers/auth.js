@@ -11,6 +11,10 @@ const auth = (state = initialState, action) => {
         isLoading: false,
         data: action.payload
       }
+    case 'LOGOUT_REQUEST':
+      return {
+        data: []
+      }
     default:
       return state
   }

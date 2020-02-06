@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment';
 
 import {
   List,
@@ -19,10 +20,14 @@ const ModalCheckout = (props) => {
       closeIcon
     >
       <Modal.Content>
-        <List size="large">
+        <List divided relaxed size="large">
           <List.Item>
             <List.Content>
-              <List.Header>Order Reference: #{detailOrder.reference}</List.Header>
+              <List.Header>{detailOrder.user_name}</List.Header>
+              <List.Header>Order #{detailOrder.reference}</List.Header>
+            </List.Content>
+            <List.Content floated="right">
+              <List.Description>{moment(detailOrder.created_at).format('DD-MM-YYYY HH:MM:SS')}</List.Description>
             </List.Content>
           </List.Item>
         </List>
@@ -44,6 +49,10 @@ const ModalCheckout = (props) => {
               )
             })
           }
+          <List.Item>
+            <List.Content>
+            </List.Content>
+          </List.Item>
           <List.Item>
             <List.Content>
               <List.Header>Total:</List.Header>

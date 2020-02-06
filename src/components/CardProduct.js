@@ -2,7 +2,8 @@ import React from 'react';
 
 import {
   CardItem,
-  Image
+  Image,
+  CardPrice
 } from '../components/Layout';
 
 import {
@@ -13,7 +14,8 @@ const CardProduct = (props) => {
   const {
     image,
     name,
-    actionButtons
+    actionButtons,
+    data
   } = props;
   return (
     <CardItem>
@@ -22,6 +24,7 @@ const CardProduct = (props) => {
         as="a"
       >
         <Image src={image} />
+        <CardPrice>{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(data.price)}</CardPrice>
         <Card.Content>
           <Card.Description>
             <strong>{name}</strong>

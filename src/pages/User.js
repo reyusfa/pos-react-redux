@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import axios from 'axios';
 import moment from 'moment';
+
+import { SemanticToastContainer } from 'react-semantic-toasts';
+import { toasting } from '../helper';
 
 import { requestUsers, requestRoles } from '../redux/actions/users';
 
@@ -18,7 +21,9 @@ import {
   Layout,
   Menu,
   NavigationContainer,
-  NavigationItem
+  NavigationItem,
+  MenuLogo,
+  Toast
 } from '../components/Layout';
 
 import {
@@ -30,7 +35,10 @@ import {
   Table
 } from 'semantic-ui-react';
 
-const Product = ({ auth, users, roles, requestUsers, requestRoles }) => {
+const Product = (props) => {
+  const dispatch = useDispatch();
+
+  const { auth, users, roles, requestUsers, requestRoles } = props;
   const [searchUserName, setSearchUserName] = useState('');
   const [filterByRole, setFilterByRole] = useState('');
   const [limitUser, setLimitUser] = useState(5);
@@ -130,24 +138,46 @@ const Product = ({ auth, users, roles, requestUsers, requestRoles }) => {
   };
 
   const handleModalCreateSave = async () => {
-    const body = {
-      name: userName,
-      username: userUsername,
-      email: userEmail,
-      role_id: userRoleId,
-      password: userPassword
-    };
-    await axios.post(`${process.env.REACT_APP_API_HOST}/users`, body, headers)
-    .then(() => {
-      requestUsers(configGetUsers);
-      setModalCreateOpen(false);
-    });
-    resetUserId();
-    resetUserName();
-    resetUserUsername();
-    resetUserEmail();
-    resetUserPassword();
-    resetUserRoleId();
+    try {
+      if(!userName || userName === '') {
+        toasting('Invalid Value!', 'Invalid name!', 'error');
+        throw new Error();
+      }
+      if(!userUsername || userUsername === '') {
+        toasting('Invalid Value!', 'Invalid username!', 'error');
+        throw new Error();
+      }
+      if(!userEmail || userEmail === '') {
+        toasting('Invalid Value!', 'Invalid email!', 'error');
+        throw new Error();
+      }
+      if(!userPassword || userPassword === '') {
+        toasting('Invalid Value!', 'Invalid password!', 'error');
+        throw new Error();
+      }
+
+      const body = {
+        name: userName,
+        username: userUsername,
+        email: userEmail,
+        role_id: userRoleId,
+        password: userPassword
+      };
+      await axios.post(`${process.env.REACT_APP_API_HOST}/users`, body, headers)
+      .then(() => {
+        requestUsers(configGetUsers);
+        setModalCreateOpen(false);
+
+        resetUserId();
+        resetUserName();
+        resetUserUsername();
+        resetUserEmail();
+        resetUserPassword();
+        resetUserRoleId();
+      });
+    } catch {
+
+    }
   };
 
   const handleModalUpdateOpen = (data) => {
@@ -179,24 +209,42 @@ const Product = ({ auth, users, roles, requestUsers, requestRoles }) => {
   };
 
   const handleModalUpdateSave = async (id) => {
-    const body = {
-      name: userName,
-      username: userUsername,
-      email: userEmail,
-      role_id: userRoleId,
-      password: userPassword
-    };
-    await axios.put(`${process.env.REACT_APP_API_HOST}/users/${id}`, body, headers)
-    .then(() => {
-      requestUsers(configGetUsers);
-      setModalUpdateOpen(false);
-    });
-    resetUserId();
-    resetUserName();
-    resetUserUsername();
-    resetUserEmail();
-    resetUserPassword();
-    resetUserRoleId();
+    try {
+      if(!userUsername || userUsername === '') {
+        toasting('Invalid Value!', 'Invalid username!', 'error');
+        throw new Error();
+      }
+      if(!userEmail || userEmail === '') {
+        toasting('Invalid Value!', 'Invalid email!', 'error');
+        throw new Error();
+      }
+      if(!userName || userName === '') {
+        toasting('Invalid Value!', 'Invalid name!', 'error');
+        throw new Error();
+      }
+
+      const body = {
+        name: userName,
+        username: userUsername,
+        email: userEmail,
+        role_id: userRoleId,
+        password: userPassword
+      };
+      await axios.put(`${process.env.REACT_APP_API_HOST}/users/${id}`, body, headers)
+      .then(() => {
+        requestUsers(configGetUsers);
+        setModalUpdateOpen(false);
+        
+        resetUserId();
+        resetUserName();
+        resetUserUsername();
+        resetUserEmail();
+        resetUserPassword();
+        resetUserRoleId();
+      });
+    } catch {
+
+    }
   };
 
   const handleDeleteUser = async (event, id) => {
@@ -248,11 +296,10 @@ const Product = ({ auth, users, roles, requestUsers, requestRoles }) => {
 
   return (
     <Layout
+      {...props}
       menu={(
-        <Menu inverted borderless>
-          <Menu.Item header>
-            Point of Sale
-          </Menu.Item>
+        <Menu inverted borderless size="large">
+          <MenuLogo>Tumbas</MenuLogo>
           <Menu.Item
             as="a"
             color="blue"
@@ -264,6 +311,7 @@ const Product = ({ auth, users, roles, requestUsers, requestRoles }) => {
             color="blue"
             name='logout'
             position='right'
+            onClick={() => dispatch({type: 'LOGOUT_REQUEST'})}
           >
             Log Out
           </Menu.Item>
@@ -435,6 +483,7 @@ const Product = ({ auth, users, roles, requestUsers, requestRoles }) => {
           />
         </div>
       )}
+      <Toast><SemanticToastContainer position="top-left" /></Toast>
     </Layout>
   );
 };

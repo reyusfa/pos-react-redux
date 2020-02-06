@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import axios from 'axios';
+
+import { useQueryParam, NumberParam, StringParam } from 'use-query-params';
 
 import { SemanticToastContainer } from 'react-semantic-toasts';
 import { toasting } from '../helper';
@@ -24,7 +26,8 @@ import {
   Menu,
   NavigationContainer,
   NavigationItem,
-  Toast
+  Toast,
+  MenuLogo
 } from '../components/Layout';
 
 import {
@@ -35,17 +38,26 @@ import {
   Select
 } from 'semantic-ui-react';
 
-const Product = ({ auth, products, categories, requestProducts, requestCategories }) => {
-  const [searchProductName, setSearchProductName] = useState('');
-  const [filterByCategory, setFilterByCategory] = useState('');
-  const [limitProduct, setLimitProduct] = useState(12);
-  const [pageProduct, setPageProduct] = useState(1);
-  const [sortProduct, setSortProduct] = useState('name.asc');
+const Product = (props) => {
+  const dispatch = useDispatch();
+
+  const { auth, products, categories, requestProducts, requestCategories } = props;
+  // const [searchProductName, setSearchProductName] = useState('');
+  // const [filterByCategory, setFilterByCategory] = useState('');
+  // const [limitProduct, setLimitProduct] = useState(12);
+  // const [pageProduct, setPageProduct] = useState(1);
+  // const [sortProduct, setSortProduct] = useState('name.asc');
   const [isLoading, setIsLoading] = useState(false);
 
   const [modalUpdateOpen, setModalUpdateOpen] = useState(false);
   const [modalCreateOpen, setModalCreateOpen] = useState(false);
   const [modalManageOpen, setModalManageOpen] = useState(false);
+
+  const [limitParam, setLimitParam] = useQueryParam('limit', NumberParam);
+  const [pageParam, setPageParam] = useQueryParam('page', NumberParam);
+  const [sortParam, setSortParam] = useQueryParam('sort', StringParam);
+  const [filterParam, setFilterParam] = useQueryParam('filter[category_id]', StringParam);
+  const [searchParam, setSearchParam] = useQueryParam('filter[name]', StringParam);
 
   const { token } = auth.data;
   const headers = {
@@ -56,12 +68,17 @@ const Product = ({ auth, products, categories, requestProducts, requestCategorie
     headers: { authorization: token },
     params: {
       filter: {
-        name: searchProductName,
-        category_id: filterByCategory
+        // name: searchProductName,
+        name: searchParam,
+        // category_id: filterByCategory
+        category_id: filterParam
       },
-      sort: sortProduct,
-      page: pageProduct,
-      limit: limitProduct
+      // sort: sortProduct,
+      sort: sortParam,
+      // page: pageProduct,
+      page: pageParam,
+      // limit: limitProduct
+      limit: limitParam
     }
   };
 
@@ -133,19 +150,62 @@ const Product = ({ auth, products, categories, requestProducts, requestCategorie
   };
 
   const handleModalCreateSave = async () => {
-    const body = new FormData();
-    body.append('name', productName);
-    body.append('price', productPrice);
-    body.append('category_id', productCategoryId);
-    body.append('description', productDescription);
-    if(valueProductImage && valueProductImage !== '') {
-      body.append('image', valueProductImage);
+    try {
+      if(!productName || productName === '') {
+        toasting('Invalid Value!', 'Invalid product name!', 'error');
+        throw new Error();
+      }
+      if(!productPrice || productPrice === '' || productPrice <= 0) {
+        toasting('Invalid Value!', 'Invalid product price!', 'error');
+        throw new Error();
+      }
+      if(!productCategoryId || productCategoryId === '') {
+        toasting('Invalid Value!', 'Invalid product category!', 'error');
+        throw new Error();
+      }
+      if(!valueProductImage || valueProductImage === '') {
+        toasting('Invalid Image!', 'Invalid product image!', 'error');
+        throw new Error();
+      }
+
+      const body = new FormData();
+      body.append('name', productName);
+      body.append('price', productPrice);
+      body.append('category_id', productCategoryId);
+      body.append('description', productDescription);
+      if(valueProductImage && valueProductImage !== '') {
+        const { type, size } = valueProductImage;
+        if(type !== 'image/jpeg' && type !== 'image/png') {
+          toasting('Invalid Image!', 'Invalid file image type!', 'error');
+          throw new Error();
+        }
+        if(size > 2 * 1024 * 1024) {
+          toasting('Invalid Image!', 'Invalid file image size!', 'error');
+          throw new Error();
+        }
+        body.append('image', valueProductImage);
+      }
+      await axios.post(`${process.env.REACT_APP_API_HOST}/products`, body, headers)
+      .then(() => {
+        requestProducts(configGetProducts);
+        setModalCreateOpen(false);
+        toasting('Create Success!', 'Create product success!');
+
+        resetProductId();
+        resetProductName();
+        resetProductPrice();
+        resetProductCategoryId();
+        resetProductDescription();
+        resetProductImage();
+      }).catch(error => {
+        if(error.response) {
+          const { message } = error.response.data.error;
+          toasting('Create Failed!', message, 'error');
+        }
+      });
+    } catch {
+
     }
-    await axios.post(`${process.env.REACT_APP_API_HOST}/products`, body, headers)
-    .then(() => {
-      requestProducts(configGetProducts);
-      setModalCreateOpen(false);
-    });
   };
 
   const handleModalUpdateOpen = (data) => {
@@ -181,11 +241,29 @@ const Product = ({ auth, products, categories, requestProducts, requestCategorie
   };
 
   const handleModalUpdateSave = async (id) => {
+    try {
+      if(!productName || productName === '') {
+        toasting('Invalid Value!', 'Invalid product name!', 'error');
+        throw new Error();
+      }
+      if(!productPrice || productPrice === '' || productPrice <= 0) {
+        toasting('Invalid Value!', 'Invalid product price!', 'error');
+        throw new Error();
+      }
+      if(!productCategoryId || productCategoryId === '') {
+        toasting('Invalid Value!', 'Invalid product category!', 'error');
+        throw new Error();
+      }
+      if(!valueProductImage || valueProductImage === '') {
+        toasting('Invalid Image!', 'Invalid product image!', 'error');
+        throw new Error();
+      }
     const body = new FormData();
     body.append('name', productName);
     body.append('price', productPrice);
     body.append('category_id', productCategoryId);
     body.append('description', productDescription);
+
     if(valueProductImage && valueProductImage !== '') {
       body.append('image', valueProductImage);
     }
@@ -195,6 +273,9 @@ const Product = ({ auth, products, categories, requestProducts, requestCategorie
       setModalUpdateOpen(false);
       toasting('Update Success!', 'Data product update success!');
     });
+    } catch {
+      
+    }
   };
 
   const handleModalManageOpen = () => {
@@ -210,32 +291,38 @@ const Product = ({ auth, products, categories, requestProducts, requestCategorie
     await axios.delete(`${process.env.REACT_APP_API_HOST}/products/${id}`, headers)
     .then(() => {
       requestProducts(configGetProducts);
+      toasting('Delete Success!', 'Data product delete success!');
     });
   };
 
   const handleSearchProductName = (event, value) => {
     event.preventDefault();
-    setSearchProductName(value);
+    // setSearchProductName(value);
+    setSearchParam(value);
   };
 
   const handleFilterByCategory = (event, value) => {
     event.preventDefault();
-    setFilterByCategory(value);
+    // setFilterByCategory(value);
+    setFilterParam(value);
   };
 
   const handleSortProduct = (event, value) => {
     event.preventDefault();
-    setSortProduct(value);
+    // setSortProduct(value);
+    setSortParam(value);
   };
 
   const handlePageProduct = (event, value) => {
     event.preventDefault();
-    setPageProduct(value.activePage);
+    // setPageProduct(value.activePage);
+    setPageParam(value.activePage);
   };
 
   const handleLimitProduct = (event, value) => {
     event.preventDefault();
-    setLimitProduct(value);
+    // setLimitProduct(value);
+    setLimitParam(value);
   };
 
   useEffect(() => {
@@ -245,20 +332,24 @@ const Product = ({ auth, products, categories, requestProducts, requestCategorie
   useEffect(() => {
     requestProducts(configGetProducts);
   }, [
-    searchProductName,
-    filterByCategory,
-    sortProduct,
-    pageProduct,
-    limitProduct
+    // searchProductName,
+    searchParam,
+    // filterByCategory,
+    filterParam,
+    // sortProduct,
+    sortParam,
+    // pageProduct,
+    pageParam,
+    // limitProduct
+    limitParam
   ]);
 
   return (
     <Layout
+      {...props}
       menu={(
-        <Menu inverted borderless>
-          <Menu.Item header>
-            Point of Sale
-          </Menu.Item>
+        <Menu inverted borderless size="large">
+          <MenuLogo>Tumbas</MenuLogo>
           <Menu.Item
             as="a"
             color="blue"
@@ -277,6 +368,7 @@ const Product = ({ auth, products, categories, requestProducts, requestCategorie
             color="blue"
             name='logout'
             position='right'
+            onClick={() => dispatch({type: 'LOGOUT_REQUEST'})}
           >
             Log Out
           </Menu.Item>
@@ -358,6 +450,7 @@ const Product = ({ auth, products, categories, requestProducts, requestCategorie
                     key={id}
                     name={name}
                     image={image}
+                    data={product}
                     actionButtons={
                       <div style={{'display': 'flex', 'justifyContent': 'space-around' }}>
                         <div>

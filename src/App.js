@@ -2,8 +2,11 @@ import React, { Component } from 'react';
 import {
   BrowserRouter,
   Switch,
+  Redirect,
   Route
 } from 'react-router-dom';
+
+import { QueryParamProvider } from 'use-query-params';
 
 import { connect } from 'react-redux';
 
@@ -20,6 +23,7 @@ class App extends Component {
   render() {
     return (
       <BrowserRouter>
+        <QueryParamProvider ReactRouterRoute={Route}>
         <Switch>
           <Route
             exact
@@ -31,9 +35,9 @@ class App extends Component {
           <PrivateRoute
             exact
             path="/"
-            component={
-              (props) => (<Home {...props} />)
-            }
+            component={(props) => {
+              return this.props.auth.data.role_id === 1 ? (<Home {...props} />) : (<Redirect to="/order" />)
+            }}
           />
           <PrivateRoute
             exact
@@ -45,18 +49,19 @@ class App extends Component {
           <PrivateRoute
             exact
             path="/product"
-            component={
-              (props) => (<Product {...props} />)
-            }
+            component={(props) => {
+              return this.props.auth.data.role_id === 1 ? (<Product {...props} />) : (<Redirect to="/order" />)
+            }}
           />
           <PrivateRoute
             exact
             path="/user"
-            component={
-              (props) => (<User {...props} />)
-            }
+            component={(props) => {
+              return this.props.auth.data.role_id === 1 ? (<User {...props} />) : (<Redirect to="/order" />)
+            }}
           />
         </Switch>
+        </QueryParamProvider>
       </BrowserRouter>
     );
   }

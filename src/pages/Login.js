@@ -1,15 +1,30 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom'
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import { useInput } from '../hooks/useInput';
 
 import axios from 'axios';
 import qs from 'qs';
 
+import { SemanticToastContainer } from 'react-semantic-toasts';
+import { toasting } from '../helper';
+
+import {
+  Button,
+  Card,
+  Form,
+  Input
+} from 'semantic-ui-react';
+
+import {
+  LoginPage,
+  Logo,
+  Toast
+} from '../components/Layout';
+
 const Login = () => {
   const history = useHistory();
-  const { auth } = useSelector(state => state);
   const dispatch = useDispatch();
 
   const { value:username, bind:bindUsername, reset:resetUsername } = useInput('');
@@ -33,27 +48,48 @@ const Login = () => {
     .then(({ data }) => {
       setDataLogin(data.data);
       history.push('/');
-    });
 
-    resetUsername();
-    resetPassword();
+      resetUsername();
+      resetPassword();
+    }).catch(error => {
+      if(error.response) {
+        const { message } = error.response.data.error;
+        toasting('Login Failed!', message, 'error');
+      }
+    });
   }
 
   return (
-    <div>
-      <div>{auth.data.token}</div>
-      <form onSubmit={handleSubmitLogin}>
-        <input
-          type="text"
-          {...bindUsername}
-        />
-        <input
-          type="password"
-          {...bindPassword}
-        />
-        <input type="submit" value="Login" />
-      </form>
-    </div>
+    <LoginPage>
+      <Logo>Tumbas Jus</Logo>
+      <Card centered>
+        <Card.Content>
+          <Card.Header textAlign="center">Login</Card.Header>
+        </Card.Content>
+        <Card.Content>
+          <Form onSubmit={handleSubmitLogin}>
+            <Form.Field
+              control={Input}
+              placeholder="Username"
+              {...bindUsername}
+            />
+            <Form.Field
+              control={Input}
+              placeholder="Password"
+              type="password"
+              {...bindPassword}
+            />
+            <Form.Field
+              primary
+              control={Button}
+              type="submit"
+              content="Login"
+            />
+          </Form>
+        </Card.Content>
+      </Card>
+      <Toast><SemanticToastContainer /></Toast>
+    </LoginPage>
   );
 };
 

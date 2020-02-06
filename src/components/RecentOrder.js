@@ -30,7 +30,7 @@ const RecentOrder = ({ auth }) => {
     getOrders()
   }, [])
   return (
-    <Card>
+    <Card fluid>
       <Card.Content>
         <Card.Header>Recent Order</Card.Header>
       </Card.Content>

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import axios from 'axios';
 
 import { SemanticToastContainer, toast } from 'react-semantic-toasts';
+import { toasting } from '../helper';
 
 import { requestProducts } from '../redux/actions/products';
 import { requestCategories } from '../redux/actions/categories';
@@ -21,7 +22,9 @@ import {
   OrderContainer,
   OrderProductContainer,
   OrderCartContainer,
-  Toast
+  Sticky,
+  Toast,
+  MenuLogo
 } from '../components/Layout';
 
 import {
@@ -33,7 +36,10 @@ import {
   Select
 } from 'semantic-ui-react';
 
-const Order = ({ auth, products, categories, requestProducts, requestCategories }) => {
+const Order = (props) => {
+  const dispatch = useDispatch();
+
+  const { auth, products, categories, requestProducts, requestCategories } = props;
   const [searchProductName, setSearchProductName] = useState('');
   const [filterByCategory, setFilterByCategory] = useState('');
   const [limitProduct, setLimitProduct] = useState(12);
@@ -82,8 +88,50 @@ const Order = ({ auth, products, categories, requestProducts, requestCategories 
     })
   ];
 
+  // const handleSelectItem = (event, data) => {
+  //   event.preventDefault();
+  //   if(!cart.includes(data.id)) {
+  //     setCart([...cart, data.id]);
+  //     const newOrder = {
+  //       name: data.name,
+  //       price: data.price,
+  //       product_id: data.id,
+  //       subtotal: data.price,
+  //       quantity: 1
+  //     };
+  //     setOrder([...order, newOrder]);
+  //     const calculateTotal = order.reduce((a, b) => {
+  //       return a + b['subtotal'];
+  //     }, 0) + data.price;
+  //     setTotalOrder(calculateTotal);
+  //   } else {
+  //     const newOrder = order.map(item => {
+  //       if(item.product_id === data.id) {
+  //         return {
+  //           name: item.name,
+  //           price: item.price,
+  //           product_id: item.product_id,
+  //           subtotal: item.price * (item.quantity + 1),
+  //           quantity: item.quantity + 1
+  //         };
+  //       } else {
+  //         return item;
+  //       }
+  //     });
+  //     setOrder([...newOrder]);
+  //     const calculateTotal = order.reduce((a, b) => {
+  //       return a + b['subtotal'];
+  //     }, 0) + data.price;
+  //     setTotalOrder(calculateTotal);
+  //   }
+  // };
+
   const handleSelectItem = (event, data) => {
     event.preventDefault();
+    // dispatch({
+    //   type: 'ADD_ITEM_TO_CART',
+    //   payload: data
+    // })
     if(!cart.includes(data.id)) {
       setCart([...cart, data.id]);
       const newOrder = {
@@ -217,20 +265,12 @@ const Order = ({ auth, products, categories, requestProducts, requestCategories 
           }
         })
       };
-      await axios.post('http://localhost:3001/orders', body, headers).then(res => {
+      await axios.post(`${process.env.REACT_APP_API_HOST}/orders`, body, headers).then(res => {
         handleModalCheckoutOpen();
         setDetailOrder(res.data.data);
         setCart([]);
         setOrder([]);
         setTotalOrder(0);
-        setTimeout(() => {
-          toast(
-            {
-              title: 'Success!',
-              description: <p>Transaction success!</p>
-            }
-          );
-        }, 100);
       }).catch(console.log);
     }
   };
@@ -259,15 +299,15 @@ const Order = ({ auth, products, categories, requestProducts, requestCategories 
   ]);
   return (
     <Layout
+      {...props}
       menu={(
-        <Menu inverted borderless>
-          <Menu.Item header>
-            Point of Sale
-          </Menu.Item>
+        <Menu inverted borderless size="large">
+          <MenuLogo>Tumbas</MenuLogo>
           <Menu.Item
             color="blue"
             name='logout'
             position='right'
+            onClick={() => dispatch({type: 'LOGOUT_REQUEST'})}
           >
             Log Out
           </Menu.Item>
@@ -374,6 +414,7 @@ const Order = ({ auth, products, categories, requestProducts, requestCategories 
             </NavigationContainer>
           </OrderProductContainer>
           <OrderCartContainer>
+                  <Sticky>
             <Card fluid>
               {
                 (order || []).map((item, index) => {
@@ -415,13 +456,13 @@ const Order = ({ auth, products, categories, requestProducts, requestCategories 
                 (
                   <Card.Content>
                     <Card.Header textAlign="right">
+                      {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalOrder)}
                       <Button
                         color="blue"
                         floated="left"
                         size="small"
                         onClick={(event) => handleCheckout(event)}
                       >Checkout</Button>
-                      {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalOrder)}
                     </Card.Header>
                   </Card.Content>
                 ) : (
@@ -438,6 +479,7 @@ const Order = ({ auth, products, categories, requestProducts, requestCategories 
                 detailOrder={detailOrder}
               />
             </Card>
+                  </Sticky>
           </OrderCartContainer>
         </OrderContainer>
       )}

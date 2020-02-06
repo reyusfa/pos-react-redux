@@ -27,7 +27,8 @@
     "semantic-ui-react": "^0.88.2",
     "styled-components": "^5.0.0",
     "tailwind.macro": "^1.0.0-alpha.10",
-    "tailwindcss": "^1.1.4"
+    "tailwindcss": "^1.1.4",
+    "use-query-params": "^0.6.0"
   },
   "scripts": {
     "start": "react-scripts start",
