@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 
 const PrivateRoute = ({ component: Component, ...options }) => {
   const auth = useSelector(state => state.auth);
-  const { token } = auth.data;
+  const token = auth.data ? auth.data : null;
   
   return (
     <Route
