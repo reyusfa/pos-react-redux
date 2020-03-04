@@ -254,25 +254,21 @@ const Product = (props) => {
         toasting('Invalid Value!', 'Invalid product category!', 'error');
         throw new Error();
       }
-      if(!valueProductImage || valueProductImage === '') {
-        toasting('Invalid Image!', 'Invalid product image!', 'error');
-        throw new Error();
-      }
-    const body = new FormData();
-    body.append('name', productName);
-    body.append('price', productPrice);
-    body.append('category_id', productCategoryId);
-    body.append('description', productDescription);
+      const body = new FormData();
+      body.append('name', productName);
+      body.append('price', productPrice);
+      body.append('category_id', productCategoryId);
+      body.append('description', productDescription);
 
-    if(valueProductImage && valueProductImage !== '') {
-      body.append('image', valueProductImage);
-    }
-    await axios.put(`${process.env.REACT_APP_API_HOST}/products/${id}`, body, headers)
-    .then(() => {
-      requestProducts(configGetProducts);
-      setModalUpdateOpen(false);
-      toasting('Update Success!', 'Data product update success!');
-    });
+      if(valueProductImage && valueProductImage !== '') {
+        body.append('image', valueProductImage);
+      }
+      await axios.put(`${process.env.REACT_APP_API_HOST}/products/${id}`, body, headers)
+      .then(() => {
+        requestProducts(configGetProducts);
+        setModalUpdateOpen(false);
+        toasting('Update Success!', 'Data product update success!');
+      });
     } catch {
       
     }

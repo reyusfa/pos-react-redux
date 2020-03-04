@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-  BrowserRouter,
+  HashRouter as Router,
   Switch,
   Redirect,
   Route
@@ -22,7 +22,7 @@ import User from './pages/User';
 class App extends Component {
   render() {
     return (
-      <BrowserRouter>
+      <Router>
         <QueryParamProvider ReactRouterRoute={Route}>
         <Switch>
           <Route
@@ -62,7 +62,7 @@ class App extends Component {
           />
         </Switch>
         </QueryParamProvider>
-      </BrowserRouter>
+      </Router>
     );
   }
 }
