@@ -8,21 +8,17 @@ const useInput = initialValue => {
     setValue,
     reset: () => setValue(''),
     bind: {
-      // value,
       defaultValue: value,
       onChange: event => {
         setValue(event.target.value);
       }
     },
     bindFile: {
-      // value,
-      // defaultValue: value,
       onChange: event => {
         setValue(event.target.files[0]);
       }
     },
     bindDropdown: {
-      // value,
       defaultValue: value,
       onChange: (event, { value }) => {
         setValue(value);
