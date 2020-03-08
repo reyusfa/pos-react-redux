@@ -35,9 +35,6 @@ const TotalOrderBarChart = ({ auth }) => {
         _.sumBy(res, moment().subtract(1, 'days').format('DD-MM-YYYY')) || 0,
         _.sumBy(res, moment().subtract(0, 'days').format('DD-MM-YYYY')) || 0,
       ]
-      // const data = Array.apply(null, Array(limitChart)).map(i => {
-      //   return _.sumBy(res, moment().subtract(i, 'days').format('DD-MM-YYYY')) || 0
-      // })
       setDataChart(data);
       setLabelChart([
         moment().subtract(6, 'days').format('DD-MM-YYYY'),
@@ -106,26 +103,3 @@ const mapDispatchToProps = (dispatch) => {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(TotalOrderBarChart);
-
-      // <Doughnut data={
-      //   {
-      //     labels: [
-      //       'Red',
-      //       'Yellow',
-      //       'Blue'
-      //     ],
-      //     datasets: [{
-      //       data: [10, 20, 30],
-      //       backgroundColor: [
-      //         '#FF6384',
-      //         '#36A2EB',
-      //         '#FFCE56'
-      //       ],
-      //       hoverBackgroundColor: [
-      //         '#FF6384',
-      //         '#36A2EB',
-      //         '#FFCE56'
-      //       ]
-      //     }]
-      //   }
-      // } />
