@@ -2,16 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import axios from 'axios';
 import moment from 'moment';
-import { Doughnut, Line } from 'react-chartjs-2';
+import { Line } from 'react-chartjs-2';
 
-import { Card, Feed } from 'semantic-ui-react';
+import { Card } from 'semantic-ui-react';
 
 const _ = require('lodash');
 
 const TotalOrderBarChart = ({ auth }) => {
   const [labelChart, setLabelChart] = useState([]);
   const [dataChart, setDataChart] = useState([]);
-  const [limitChart, setLimitChart] = useState(7);
   const { token } = auth.data;
   const headers = {
     headers: { authorization: token }
@@ -90,16 +89,8 @@ const TotalOrderBarChart = ({ auth }) => {
   )
 }
 
-const mapStateToProps = (state) => {
-  return {
+const mapStateToProps = (state) => ({
     auth: state.auth
-  }
-};
+  });
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    
-  }
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(TotalOrderBarChart);
+export default connect(mapStateToProps)(TotalOrderBarChart);
