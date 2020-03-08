@@ -50,17 +50,10 @@ const Home = (props) => {
   );
 };
 
-const mapStateToProps = (state) => {
-  return {
-    auth: state.auth,
-    products: state.products,
-    categories: state.categories
-  }
-};
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-  }
-};
+const mapStateToProps = (state) => ({
+  auth: state.auth,
+  products: state.products,
+  categories: state.categories
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home);
